@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FX Journal — Juanes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="journal.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════
+       PAGE: JOURNAL
+  ══════════════════════════════ -->
+  <div id="page-journal" class="page active">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="logo">
+          <span class="logo-fx">FX</span><span class="logo-journal">Journal</span>
+        </div>
+        <div class="acct-pill" id="acct-pill">Juanes · $10,000.00</div>
+      </div>
+      <div class="topbar-right">
+        <input type="text" class="search-box" id="search-inp" placeholder="Buscar par, tag, nota...">
+        <button class="btn-analytics" id="btn-go-analytics">Analytics →</button>
+        <button class="btn-new" id="btn-new-trade">+ Nueva operación</button>
+      </div>
+    </header>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="tabs">
+      <div class="tab active">Trades</div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="trades-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Par</th>
+              <th>Sesión</th>
+              <th>Entrada</th>
+              <th>Salida</th>
+              <th>Lotes</th>
+              <th>P&L ($)</th>
+              <th>P&L (%)</th>
+              <th>R:R</th>
+              <th>Tags</th>
+              <th>Nota</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="trades-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="sp">
+        <div class="sp-title">Curva de equity</div>
+        <div class="equity-wrap">
+          <canvas id="equity-canvas"></canvas>
+        </div>
+      </div>
+      <div class="sp">
+        <div class="sp-title">P&L por día de semana</div>
+        <div class="day-breakdown" id="day-breakdown"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════
+       MODAL: NUEVA OPERACIÓN
+  ══════════════════════════════ -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Registrar operación</span>
+        <button class="modal-close" id="btn-modal-close">✕</button>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="fl">
+          <label>Par</label>
+          <select id="f-pair">
+            <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+            <option>AUD/USD</option><option>USD/CAD</option><option>NZD/USD</option>
+            <option>USD/CHF</option><option>EUR/GBP</option><option>EUR/JPY</option><option>GBP/JPY</option>
+          </select>
+        </div>
+        <div class="fl">
+          <label>Dirección</label>
+          <select id="f-dir"><option value="BUY">BUY</option><option value="SELL">SELL</option></select>
+        </div>
+        <div class="fl">
+          <label>Sesión</label>
+          <select id="f-session">
+            <option>London</option><option>New York</option><option>Asia</option><option>NY/London</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="fl"><label>Precio entrada</label><input type="number" id="f-entry" step="0.00001" placeholder="1.08450"></div>
+        <div class="fl"><label>Precio salida</label><input type="number" id="f-exit" step="0.00001" placeholder="1.08720"></div>
+        <div class="fl"><label>Lotes</label><input type="number" id="f-lots" step="0.01" placeholder="0.10"></div>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="fl"><label>Balance ($)</label><input type="number" id="f-bal" placeholder="10000"></div>
+        <div class="fl"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="120.50"></div>
+        <div class="fl"><label>Fecha</label><input type="date" id="f-date"></div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="fl"><label>R:R</label><input type="number" id="f-rr" step="0.1" placeholder="1.5"></div>
+        <div class="fl"><label>Nota</label><input type="text" id="f-note" placeholder="Setup, decisión..."></div>
+      </div>
+
+      <div class="tags-section">
+        <div class="tags-label">Tags</div>
+        <div class="tags-row" id="tags-row"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btn-cancel">Cancelar</button>
+        <button class="btn-save" id="btn-save">Guardar trade</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       PAGE: ANALYTICS
+  ══════════════════════════════ -->
+  <div id="page-analytics" class="page">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="logo">
+          <span class="logo-fx">FX</span><span class="logo-journal">Analytics</span>
+        </div>
+        <div class="acct-pill" id="analytics-pill">Juanes</div>
+      </div>
+      <div class="topbar-right">
+        <select class="filter-sel" id="period-filter">
+          <option value="all">Todo el tiempo</option>
+          <option value="30">Últimos 30 días</option>
+          <option value="7">Últimos 7 días</option>
+        </select>
+        <select class="filter-sel" id="pair-filter"><option value="all">Todos los pares</option></select>
+        <button class="btn-analytics" id="btn-go-journal">← Journal</button>
+      </div>
+    </header>
+
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div id="analytics-empty" class="empty-analytics hidden">
+      Sin trades registrados aún. Ve al Journal y agrega tus primeras operaciones.
+    </div>
+
+    <div id="analytics-charts">
+      <div class="charts-grid-full">
+        <div class="chart-panel">
+          <div class="cp-title">Curva de equity</div>
+          <div class="ch-wrap" style="height:140px"><canvas id="ch-equity"></canvas></div>
+        </div>
+      </div>
+
+      <div class="charts-grid-2">
+        <div class="chart-panel">
+          <div class="cp-title">P&L por sesión</div>
+          <div class="ch-wrap" style="height:150px"><canvas id="ch-session"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="cp-title">P&L por día de semana</div>
+          <div class="ch-wrap" style="height:150px"><canvas id="ch-day"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="cp-title">Distribución de resultados</div>
+          <div class="ch-wrap" style="height:150px"><canvas id="ch-dist"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="cp-title">Rendimiento por par</div>
+          <div class="ch-wrap" style="height:150px"><canvas id="ch-pair"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-panel" style="margin-top:10px">
+        <div class="cp-title">Racha de trades (últimos 30)</div>
+        <div class="streak-row" id="streak-row"></div>
+      </div>
+
+      <div class="chart-panel" style="margin-top:10px">
+        <div class="cp-title">Rendimiento por tag</div>
+        <table class="tag-table">
+          <thead>
+            <tr><th>Tag</th><th>Trades</th><th>Win rate</th><th>Net P&L</th><th>Avg P&L</th></tr>
+          </thead>
+          <tbody id="tag-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="journal.js"></script>
+</body>
+</html>
